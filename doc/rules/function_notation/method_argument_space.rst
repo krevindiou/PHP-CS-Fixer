@@ -25,6 +25,15 @@ Allowed types: ``bool``
 
 Default value: ``false``
 
+``arguments_separation``
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Whether arguments should be separated by an empty line.
+
+Allowed values: ``'none'`` and ``'only_if_meta'``
+
+Default value: ``'only_if_meta'``
+
 ``attribute_placement``
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -281,6 +290,46 @@ With configuration: ``['after_heredoc' => true]``.
    +        EOD,
         'bar'
     );
+
+Example #12
+~~~~~~~~~~~
+
+With configuration: ``['on_multiline' => 'ensure_fully_multiline', 'arguments_separation' => 'none']``.
+
+.. code-block:: diff
+
+   --- Original
+   +++ New
+    <?php
+    function sample(
+        #[Foo]
+        $a=10,
+   -
+        #[Bar]
+        $b=20,
+   -
+        $c=30
+    ) {}
+
+Example #13
+~~~~~~~~~~~
+
+With configuration: ``['on_multiline' => 'ensure_fully_multiline', 'arguments_separation' => 'only_if_meta']``.
+
+.. code-block:: diff
+
+   --- Original
+   +++ New
+    <?php
+    function sample(
+        #[Foo]
+        $a=10,
+   -
+        #[Bar]
+        $b=20,
+   -
+        $c=30
+    ) {}
 
 Rule sets
 ---------

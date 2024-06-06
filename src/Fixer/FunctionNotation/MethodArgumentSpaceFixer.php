@@ -108,6 +108,20 @@ final class MethodArgumentSpaceFixer extends AbstractFixer implements Configurab
                     ,
                     ['after_heredoc' => true]
                 ),
+                new CodeSample(
+                    "<?php\nfunction sample(\n    #[Foo]\n    \$a=10,\n\n    #[Bar]\n    \$b=20,\n\n    \$c=30\n) {}\n",
+                    [
+                        'on_multiline' => 'ensure_fully_multiline',
+                        'arguments_separation' => 'none',
+                    ]
+                ),
+                new CodeSample(
+                    "<?php\nfunction sample(\n    #[Foo]\n    \$a=10,\n\n    #[Bar]\n    \$b=20,\n\n    \$c=30\n) {}\n",
+                    [
+                        'on_multiline' => 'ensure_fully_multiline',
+                        'arguments_separation' => 'only_if_meta',
+                    ]
+                ),
             ],
             'This fixer covers rules defined in PSR2 ¶4.4, ¶4.6.'
         );
@@ -185,6 +199,13 @@ final class MethodArgumentSpaceFixer extends AbstractFixer implements Configurab
             ))
                 ->setAllowedValues(['ignore', 'same_line', 'standalone'])
                 ->setDefault('standalone')
+                ->getOption(),
+            (new FixerOptionBuilder(
+                'arguments_separation',
+                'Whether arguments should be separated by an empty line.'
+            ))
+                ->setAllowedValues(['none', 'only_if_meta'])
+                ->setDefault('only_if_meta')
                 ->getOption(),
         ]);
     }
@@ -369,6 +390,16 @@ final class MethodArgumentSpaceFixer extends AbstractFixer implements Configurab
                     $tokens->ensureWhitespaceAtIndex($index + 1, 0, ' ');
                 }
                 $index = $tokens->findBlockStart(Tokens::BLOCK_TYPE_ATTRIBUTE, $index);
+
+                if ('only_if_meta' === $this->configuration['arguments_separation']) {
+                    $isFirstArg = $tokens[$tokens->getNextMeaningfulToken($index - 3)]->equals('(');
+                    if (!$isFirstArg) {
+                        $this->fixNewline($tokens, $index - 1, $indentation);
+ 
+                        $commaIndexId = $tokens->getNextTokenOfKind($index, [new Token(',')]);
+                        $this->fixNewline($tokens, $commaIndexId + 1, $indentation);
+                    }
+                }
 
                 continue;
             }
